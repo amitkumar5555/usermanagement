@@ -1,0 +1,17 @@
+# Ignore build artifacts
+target/
+!target/*.jar
+
+# Ignore VCS and IDE stuff
+.git
+.gitignore
+.idea/
+*.iml
+
+# Ignore OS & editor files
+.DS_Store
+*.swp
+
+# Optional: ignore test reports or logs
+*.log
+test-output/

@@ -1,0 +1,11 @@
+server:
+  port : 7083
+
+spring:
+   application:
+      name: usermanagement
+   data:
+    mongodb:
+ #     uri: mongodb://localhost:27017
+      uri: mongodb://host.docker.internal:27017
+      database: usernamagement
