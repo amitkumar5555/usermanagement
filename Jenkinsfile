@@ -10,6 +10,11 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'docker_hub_credentials'  // Your Docker Hub Jenkins credential ID
     }
 
+    tools {
+        // Define the Maven version to use in Jenkins
+        maven 'Maven_3.9.9'  // Replace with the name of your Maven installation in Jenkins
+    }
+
     stages {
 
         stage('Checkout Source Code') {
@@ -44,8 +49,18 @@ pipeline {
             }
         }
 
+         // Stage to package the application using Maven
+        stage('Package Application with Maven') {
+            steps {
+                // Run Maven clean package command
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        // Stage to build Docker image
         stage('Build Docker Image') {
             steps {
+                // Build Docker image after Maven has packaged the app
                 sh "docker build --platform=linux/amd64 -t ${FULL_IMAGE_NAME} ."
             }
         }
