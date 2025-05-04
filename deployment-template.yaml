@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: usermanagement
-          image: amit8614136/usermanagement
+          image: amit8614136/usermanagement:<IMAGE_TAG>
           ports:
             - containerPort: 7083
 

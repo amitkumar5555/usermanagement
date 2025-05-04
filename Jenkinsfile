@@ -108,6 +108,10 @@ pipeline {
                     sh '''
                     export KUBECONFIG=$KUBECONFIG_FILE
 
+                    # Replace image tag dynamically in the deployment YAML
+                    sed "s|<IMAGE_TAG>|${IMAGE_TAG}|g" deployment-template.yaml > deployment.yaml
+
+
                     # Apply deployment and service YAMLs
                     kubectl apply -f deployment.yaml
                     kubectl apply -f service.yaml
@@ -125,6 +129,10 @@ pipeline {
         }
         failure {
             echo "❌ Deployment failed!"
+        }
+        always {
+            // Cleanup dynamically generated deployment file
+            sh 'rm -f deployment.yaml'
         }
     }
 }
