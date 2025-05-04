@@ -6,8 +6,9 @@ pipeline {
         IMAGE_NAME = 'usermanagement'
         FULL_IMAGE_NAME = "${DOCKER_USERNAME}/${IMAGE_NAME}"
         CONTAINER_NAME = 'usermanagement-container'
-        PORT = '7002'
+      //  PORT = '7002'
         DOCKER_CREDENTIALS_ID = 'docker_hub_credentials'  // Your Docker Hub Jenkins credential ID
+        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig_id'         // Jenkins credential ID for kubeconfig file
     }
 
     tools {
@@ -24,30 +25,30 @@ pipeline {
             }
         }
 
-        stage('Cleanup Existing Container') {
-            steps {
-                script {
-                    sh """
-                    if [ \$(docker ps -aq -f name=${CONTAINER_NAME}) ]; then
-                      docker stop ${CONTAINER_NAME} || true
-                      docker rm ${CONTAINER_NAME} || true
-                    fi
-                    """
-                }
-            }
-        }
+        // stage('Cleanup Existing Container') {
+        //     steps {
+        //         script {
+        //             sh """
+        //             if [ \$(docker ps -aq -f name=${CONTAINER_NAME}) ]; then
+        //               docker stop ${CONTAINER_NAME} || true
+        //               docker rm ${CONTAINER_NAME} || true
+        //             fi
+        //             """
+        //         }
+        //     }
+        // }
 
-        stage('Remove Old Local Image') {
-            steps {
-                script {
-                    sh """
-                    if [ \$(docker images -q ${FULL_IMAGE_NAME}) ]; then
-                      docker rmi ${FULL_IMAGE_NAME} --force || true
-                    fi
-                    """
-                }
-            }
-        }
+        // stage('Remove Old Local Image') {
+        //     steps {
+        //         script {
+        //             sh """
+        //             if [ \$(docker images -q ${FULL_IMAGE_NAME}) ]; then
+        //               docker rmi ${FULL_IMAGE_NAME} --force || true
+        //             fi
+        //             """
+        //         }
+        //     }
+        // }
 
          // Stage to package the application using Maven
         stage('Package Application with Maven') {
@@ -77,33 +78,49 @@ pipeline {
             }
         }
 
-        stage('Remove Local Image') {
+        // stage('Remove Local Image') {
+        //     steps {
+        //         sh "docker rmi ${FULL_IMAGE_NAME} --force || true"
+        //     }
+        // }
+
+        // stage('Pull from Docker Hub') {
+        //     steps {
+        //         sh "docker pull ${FULL_IMAGE_NAME}"
+        //     }
+        // }
+
+        // stage('Run Docker Container') {
+        //     steps {
+        //         sh """
+        //         docker run --platform=linux/amd64 -d \
+        //           --name ${CONTAINER_NAME} \
+        //           -p ${PORT}:7083 \
+        //           ${FULL_IMAGE_NAME}
+        //         """
+        //     }
+        // }
+
+        stage('Deploy to Kubernetes') {
             steps {
-                sh "docker rmi ${FULL_IMAGE_NAME} --force || true"
+                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG_FILE')]) {
+                    sh '''
+                    export KUBECONFIG=$KUBECONFIG_FILE
+
+                    # Apply deployment and service YAMLs
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
+                    '''
+                }
             }
         }
 
-        stage('Pull from Docker Hub') {
-            steps {
-                sh "docker pull ${FULL_IMAGE_NAME}"
-            }
-        }
-
-        stage('Run Docker Container') {
-            steps {
-                sh """
-                docker run --platform=linux/amd64 -d \
-                  --name ${CONTAINER_NAME} \
-                  -p ${PORT}:7083 \
-                  ${FULL_IMAGE_NAME}
-                """
-            }
-        }
     }
 
     post {
         success {
-            echo "✅ App deployed successfully: http://localhost:${PORT}"
+          //  echo "✅ App deployed successfully: http://localhost:${PORT}"
+            echo "✅ Application deployed to Kubernetes successfully."
         }
         failure {
             echo "❌ Deployment failed!"
