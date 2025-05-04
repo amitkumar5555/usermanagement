@@ -7,5 +7,6 @@ spring:
    data:
     mongodb:
  #     uri: mongodb://localhost:27017
-      uri: mongodb://host.docker.internal:27017
-      database: usernamagement
+ #     uri: mongodb://host.docker.internal:27017
+      uri: mongodb+srv://amit:ankitamit@usermanagement.3oxhaos.mongodb.net/
+      database: usermanagement
