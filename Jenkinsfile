@@ -4,7 +4,8 @@ pipeline {
     environment {
         DOCKER_USERNAME = 'amit8614136'
         IMAGE_NAME = 'usermanagement'
-        FULL_IMAGE_NAME = "${DOCKER_USERNAME}/${IMAGE_NAME}"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"  // used build number in tag
+        FULL_IMAGE_NAME = "${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
         CONTAINER_NAME = 'usermanagement-container'
       //  PORT = '7002'
         DOCKER_CREDENTIALS_ID = 'docker_hub_credentials'  // Your Docker Hub Jenkins credential ID
