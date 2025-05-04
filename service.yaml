@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: usermanagement-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: usermanagement
   ports:
     - port: 7083
       targetPort: 7083
-      nodePort: 30083  # You can access your app on this port
+#      nodePort: 30083  # You can access your app on this port
 
